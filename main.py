@@ -54,7 +54,7 @@ async def on_ready():
             
             query = query.lstrip()
             response = response.lstrip()
-            print('found message '+response+' after '+query)
+            #print('found message '+response+' after '+query)
             if len(query) > 3 and len(response) > 3:
                 allMessages.append(MsgResponse(query, response, message.created_at))
                 with open('data.txt', 'a', encoding="utf-8") as file:
@@ -67,10 +67,9 @@ async def on_ready():
         for msg in allMessages:
             file.write('<startmsg>\n'+msg.message+'\n'+msg.response) 
     # Now exit
-    await ctx.bot.logout()
-    sys.trackbacklimit=None
-    sys.exit(0)
-    
+    print('Polling Successful!')
+    await bot.logout()
+
 print('Enter token ( you can get yours via https://discordhelp.net/discord-token ):')
 token = str(input())
 print('Connecting to discord...')
