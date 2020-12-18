@@ -1,7 +1,7 @@
 # -*- coding: cp1252 -*-
 import discord
 from discord.ext import commands
-import os, sys
+import os, sys, csv, time
 import collections
 from operator import attrgetter
   
@@ -24,14 +24,14 @@ async def on_ready():
     for channel in text_channels:
         try:
             messages = await channel.history(oldest_first=False).flatten()
-            i = -1;
+            i = -1
             while i+1 < len(messages):
                 i += 1
                 message = messages[i]
 
                 # ignore the message if it isn't from the bot
                 if message.author.id != bot.user.id:
-                    continue;
+                    continue
                 
                 # get response (its first)
                 response = ""
@@ -52,21 +52,25 @@ async def on_ready():
                 i -= 1
 
                 
-                query = query.lstrip()
-                response = response.lstrip()
-                #print('found message '+response+' after '+query)
-                if len(query) > 3 and len(response) > 3:
+                query = query.strip().
+                response = response.strip()
+                if len(query) > 0 and len(response) > 0:
                     allMessages.append(MsgResponse(query, response, message.created_at))
-                    with open('data.txt', 'a', encoding="utf-8") as file:
-                        file.write('<startmsg>\n'+query+'\n'+response)
+                    with open('data.csv', 'a', newline='', encoding='utf-8') as file:
+                        writer = csv.writer(file)
+                        writer.writerow([time.mktime(message.created_at.timetuple()), query, response])
         except:
             pass
+    
     # Sort by date created
     allMessages = sorted(allMessages, key=attrgetter('time'))
+    
     # Overwrite the old list with the sorted list
-    with open('data.txt', 'w', encoding="utf-8") as file:
+    with open('data.csv', 'w', newline='', encoding='utf-8') as file:
         for msg in allMessages:
-            file.write('<startmsg>\n'+msg.message+'\n'+msg.response) 
+            writer = csv.writer(file)
+            writer.writerow([time.mktime(msg.time), msg.message, msg.response])
+    
     # Now exit
     print('Polling Successful!')
     await bot.logout()
